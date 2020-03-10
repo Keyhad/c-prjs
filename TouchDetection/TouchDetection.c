@@ -86,8 +86,8 @@ dimension iof a cluster
                         (COLUMN_COUNT - CLUSTER_COLUMN_COUNT + 1)
 
 typedef struct S_Cluster {
-    int x[CLUSTER_ROW_COUNT][CLUSTER_COLUMN_COUNT];
-    int y[CLUSTER_ROW_COUNT][CLUSTER_COLUMN_COUNT];
+    int x;
+    int y;
     int force;
     int count;
 } T_Cluster;
@@ -114,19 +114,13 @@ void detectTouches(void* pHandle)
     T_Cluster clusters[MAX_CLUSTERS];
     for (int ci = 0; ci < MAX_CLUSTERS; ci++) {
         T_Cluster *cluster = &clusters[ci];
-        cluster->x[0][0] = ci % COLUMN_COUNT;
-        cluster->y[0][0] = ci / ROW_COUNT;
-        cluster->x[0][1] = clusters->x[0][0] + 1;
-        cluster->y[0][1] = clusters->y[0][0] + 0;
-        cluster->x[1][0] = clusters->x[0][0] + 0;
-        cluster->y[1][0] = clusters->y[0][0] + 1;
-        cluster->x[1][1] = clusters->x[0][0] + 1;
-        cluster->y[1][1] = clusters->y[0][0] + 1;
+        cluster->x = ci % COLUMN_COUNT;
+        cluster->y = ci / ROW_COUNT;
 
-        int f0 = touchTable[clusters->y[0][0]][cluster->x[0][0]];
-        int f1 = touchTable[clusters->y[0][1]][cluster->x[0][1]];
-        int f2 = touchTable[clusters->y[1][0]][cluster->x[1][0]];
-        int f3 = touchTable[clusters->y[1][1]][cluster->x[1][1]];
+        int f0 = touchTable[clusters->y][cluster->x];
+        int f1 = touchTable[clusters->y][cluster->x + 1];
+        int f2 = touchTable[clusters->y + 1][cluster->x];
+        int f3 = touchTable[clusters->y + 1][cluster->x + 1];
 
         cluster->force = f0 + f1 + f2 + f3;
         cluster->count = (f0 ? 1 : 0) +
