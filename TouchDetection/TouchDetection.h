@@ -32,7 +32,6 @@ TOUCH _positions [MAX_TOUCH_COUNT + 1];
  *  pHandle - a handle for usage in the call to getForce 
  *  return - void, _positions should have updated values
  */
-void detectTouches(void* pHandle);
-void detectTouches(void* pHandle);
+extern void detectTouches(void* pHandle);
 
 #endif

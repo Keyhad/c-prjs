@@ -16,7 +16,8 @@ uint8_t getForce(void* pHandle, int col, int row)
 void test_detectTouches() 
 {
     detectTouches(test_forces);
-    printf("#1. PASS/FAIL");
+    
+    printf("#1 %s\n", _positions[0]._force ? "PASS" : "FAIL");
 }
 
 void main() 

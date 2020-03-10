@@ -56,6 +56,7 @@ dimension iof a cluster
 typedef struct S_Cluster {
     int x;
     int y;
+    int forces[CLUSTER_ROW_COUNT * CLUSTER_COLUMN_COUNT];
     int force;
     int count;
 } T_Cluster;
@@ -84,7 +85,7 @@ void detectTouches(void* pHandle)
         T_Cluster *cluster = &clusters[ci];
         cluster->x = ci % COLUMN_COUNT;
         cluster->y = ci / ROW_COUNT;
-
+        
         int f0 = touchTable[clusters->y][cluster->x];
         int f1 = touchTable[clusters->y][cluster->x + 1];
         int f2 = touchTable[clusters->y + 1][cluster->x];
@@ -95,6 +96,10 @@ void detectTouches(void* pHandle)
                          (f1 ? 1 : 0) +
                          (f2 ? 1 : 0) +
                          (f3 ? 1 : 0);
+        cluster->forces[0] = f0;
+        cluster->forces[1] = f1;
+        cluster->forces[2] = f2;
+        cluster->forces[3] = f3;
     }
 
     // sort clusters by force value
@@ -115,9 +120,23 @@ void detectTouches(void* pHandle)
 
     for (int ci = 0; ci < MAX_TOUCH_COUNT; ci++) 
     {
-        if (clusters[ci].force > 0) {
-            _positions[ci]._x = 0;// calc x
-            _positions[ci]._y = 0;// calc x
+        T_Cluster *cluster = &clusters[ci];
+        if (clusters->force > 0) {
+            // X = (x0*f0 + x1*f1 + ...)/(f0+f1+...)
+            _positions[ci]._x = 0;
+            _positions[ci]._x += cluster->x * cluster->forces[0];
+            _positions[ci]._x += (cluster->x + 1) * cluster->forces[1];
+            _positions[ci]._x += cluster->x * cluster->forces[2];
+            _positions[ci]._x += (cluster->x + 1) * cluster->forces[3];
+            _positions[ci]._x /= cluster->force;
+            // Y = (y0*f0 + y1*f1 + ...)/(f0+f1+...)
+            _positions[ci]._y = 0;
+            _positions[ci]._y += cluster->y * cluster->forces[0];
+            _positions[ci]._y += cluster->y * cluster->forces[1];
+            _positions[ci]._y += (cluster->y + 1) * cluster->forces[2];
+            _positions[ci]._y += (cluster->y + 1) * cluster->forces[3];
+            _positions[ci]._y /= cluster->force;
+
             _positions[ci]._force = clusters[ci].force;
             _positions[ci]._count = clusters[ci].count;
         }
